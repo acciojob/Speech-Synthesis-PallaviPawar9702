@@ -81,8 +81,9 @@ function speak() {
   setOptions();
 
   if (msg.text.trim() === '') {
-    return;
-  }
+  alert('Please enter some text');
+  return;
+}
 
   speechSynthesis.cancel();
   setVoices();
