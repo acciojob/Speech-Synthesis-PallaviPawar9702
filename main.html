@@ -42,7 +42,32 @@ const speakButton = document.querySelector('#speak');
 const stopButton = document.querySelector('#stop');
 
 
+// Check whether Speech Synthesis is supported
+function speechSynthesisSupported() {
+
+  if (!('speechSynthesis' in window)) {
+
+    voicesDropdown.innerHTML = '';
+
+    const option = document.createElement('option');
+
+    option.textContent = 'No voices available';
+
+    voicesDropdown.appendChild(option);
+
+    return false;
+  }
+
+  return true;
+}
+
+
+// Populate voices
 function populateVoices() {
+
+  if (!speechSynthesisSupported()) {
+    return;
+  }
 
   voices = speechSynthesis.getVoices();
 
@@ -51,6 +76,8 @@ function populateVoices() {
   if (voices.length === 0) {
 
     const option = document.createElement('option');
+
+    option.value = '';
 
     option.textContent = 'No voices available';
 
@@ -76,14 +103,22 @@ function populateVoices() {
 }
 
 
+// Initial voice loading
 populateVoices();
 
-speechSynthesis.addEventListener(
-  'voiceschanged',
-  populateVoices
-);
+
+// Load voices when they become available
+if ('speechSynthesis' in window) {
+
+  speechSynthesis.addEventListener(
+    'voiceschanged',
+    populateVoices
+  );
+
+}
 
 
+// Set selected voice
 function setVoices() {
 
   const selectedVoice = voices.find(function(voice) {
@@ -101,6 +136,7 @@ function setVoices() {
 }
 
 
+// Set rate, pitch and text
 function setOptions() {
 
   const rate = document.querySelector('[name="rate"]').value;
@@ -108,7 +144,6 @@ function setOptions() {
   const pitch = document.querySelector('[name="pitch"]').value;
 
   const text = document.querySelector('[name="text"]').value;
-
 
   msg.rate = Number(rate);
 
@@ -119,13 +154,20 @@ function setOptions() {
 }
 
 
+// Speak
 function speak() {
 
-  setOptions();
+  // Check API support first
+  if (!speechSynthesisSupported()) {
 
+    return;
 
-  // Prevent speech if there is no text
-  if (!msg.text || msg.text.trim() === '') {
+  }
+
+  const text = document.querySelector('[name="text"]').value;
+
+  // Prevent speech when text is empty
+  if (!text || text.trim() === '') {
 
     alert('Please enter some text');
 
@@ -133,6 +175,7 @@ function speak() {
 
   }
 
+  setOptions();
 
   setVoices();
 
@@ -143,25 +186,33 @@ function speak() {
 }
 
 
+// Stop
 function stop() {
 
-  speechSynthesis.cancel();
+  if ('speechSynthesis' in window) {
+
+    speechSynthesis.cancel();
+
+  }
 
 }
 
 
+// Speak button
 speakButton.addEventListener(
   'click',
   speak
 );
 
 
+// Stop button
 stopButton.addEventListener(
   'click',
   stop
 );
 
 
+// Voice change
 voicesDropdown.addEventListener(
   'change',
   function() {
@@ -180,6 +231,7 @@ voicesDropdown.addEventListener(
 );
 
 
+// Rate, pitch and text changes
 options.forEach(function(option) {
 
   option.addEventListener(
@@ -189,6 +241,7 @@ options.forEach(function(option) {
       setOptions();
 
     }
+
   );
 
 });
