@@ -105,7 +105,13 @@ voicesDropdown.addEventListener('change', function() {
 });
 
 options.forEach(function(option) {
-  option.addEventListener('change', setOptions);
+  option.addEventListener('input', function() {
+    setOptions();
+
+    if (speechSynthesis.speaking) {
+      speak();
+    }
+  });
 });
 </script>
 
